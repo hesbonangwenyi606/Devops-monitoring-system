@@ -1,0 +1,9 @@
+{
+  "dashboard": {
+    "id": null,
+    "uid": "sample-1",
+    "title": "Sample Prometheus Overview",
+    "panels": []
+  },
+  "overwrite": true
+}
