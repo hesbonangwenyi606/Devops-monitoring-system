@@ -1,34 +1,46 @@
+// Generate the Prisma Client and ensure compatibility
+// with Alpine-based Docker images (musl + OpenSSL 3.x)
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
+// Database connection details come from environment variables
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
+// --------------------
+// MODELS
+// --------------------
+
+// User accounts for authentication and role-based access
 model User {
   id           Int      @id @default(autoincrement())
   username     String   @unique
   passwordHash String
-  role         String   @default("viewer")
+  role         String   @default("viewer") // roles: admin | viewer
   createdAt    DateTime @default(now())
 }
 
+// Nodes represent monitored servers or devices
 model Node {
   id        Int      @id @default(autoincrement())
   name      String
   ip        String
-  status    String   @default("unknown")
+  status    String   @default("unknown") // possible: healthy | warning | critical
   createdAt DateTime @default(now())
   alerts    Alert[]
 }
 
+// Alerts belong to a node and track system health issues
 model Alert {
   id        Int      @id @default(autoincrement())
   node      Node     @relation(fields: [nodeId], references: [id])
   nodeId    Int
   message   String
-  severity  String
+  severity  String   // e.g. "critical", "warning", "info"
   createdAt DateTime @default(now())
 }
+
