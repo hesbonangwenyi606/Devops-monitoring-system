@@ -1,5 +1,7 @@
 version: '3.9'
+
 services:
+  # --- PostgreSQL Database ---
   postgres:
     image: postgres:15
     environment:
@@ -11,6 +13,7 @@ services:
     ports:
       - '5432:5432'
 
+  # --- Prometheus ---
   prometheus:
     image: prom/prometheus:latest
     volumes:
@@ -18,11 +21,13 @@ services:
     ports:
       - '9090:9090'
 
+  # --- Node Exporter (for server metrics) ---
   node-exporter:
     image: prom/node-exporter:latest
     ports:
       - '9100:9100'
 
+  # --- Grafana ---
   grafana:
     image: grafana/grafana:latest
     volumes:
@@ -33,6 +38,7 @@ services:
     ports:
       - '3000:3000'
 
+  # --- Backend API ---
   backend:
     build: ./backend
     depends_on:
@@ -47,14 +53,16 @@ services:
     volumes:
       - ./backend:/usr/src/app
 
+  # --- Frontend (React/Vite built with Nginx) ---
   frontend:
     build: ./frontend
     depends_on:
       - backend
     ports:
       - '8080:80'
-    volumes:
-      - ./frontend:/usr/share/nginx/html:ro
+    # Do NOT mount the source code folder here — it overwrites the built files
+    # volumes:
+    #   - ./frontend:/usr/share/nginx/html:ro
 
 volumes:
   postgres-data:
